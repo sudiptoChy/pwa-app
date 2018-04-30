@@ -29,25 +29,24 @@ function setCurrentPosition(pos) {
     currentPositionMarker = new google.maps.Marker({
         map: map,
         position: new google.maps.LatLng(
-            pos.coords.latitude,
-            pos.coords.longitude
+            pos.lat,
+            pos.lng
         ),
         icon: './icons/car-icon.png',
         title: "Current Position"
     });
     map.panTo(new google.maps.LatLng(
-        pos.coords.latitude,
-        pos.coords.longitude
+        pos.lat,
+        pos.lng
     ));
 }
 
 function displayAndWatch(position) {
-
     // set current position
     setCurrentPosition(position);
 
     // watch position
-    watchCurrentPosition();
+    //watchCurrentPosition();
 }
 
 function watchCurrentPosition() {
@@ -61,27 +60,30 @@ function watchCurrentPosition() {
 }
 
 function setMarkerPosition(marker, position) {
-    console.log(marker);
-    console.log(position);
     marker.setPosition(
         new google.maps.LatLng(
-            position.coords.latitude,
-            position.coords.longitude)
+            position.lat,
+            position.lng)
     );
+
+    map.panTo(new google.maps.LatLng(
+        position.lat,
+        position.lng
+    ));
 }
 
-function initLocationProcedure() {
-    initializeMap();
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(displayAndWatch, function (error) {
-            if (error.code == 1) {
-                alert("Please allow location service.");
-            }
-        });
-    } else {
-        // tell the user if a browser doesn't support this amazing API
-        alert("Your browser does not support the Geolocation API!");
-    }
+function initLocationProcedure(position) {
+    displayAndWatch(position);
+    // if (navigator.geolocation) {
+    //     navigator.geolocation.getCurrentPosition(displayAndWatch, function (error) {
+    //         if (error.code == 1) {
+    //             alert("Please allow location service.");
+    //         }
+    //     });
+    // } else {
+    //     // tell the user if a browser doesn't support this amazing API
+    //     alert("Your browser does not support the Geolocation API!");
+    // }
 }
 
 function registerServiceWorker () {
@@ -91,9 +93,31 @@ function registerServiceWorker () {
             .then(function() { console.log('Service Worker Registered'); });
     }
 }
+function getMapData(isFromInterval){
+    var xhttp = new XMLHttpRequest();
+    var url = 'https://ux-exam.firebaseio.com/chatTask/wadud/LBKu9VbjvEgP4Tczu2S.json';
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var pos = JSON.parse(xhttp.responseText);
+            if(!isFromInterval){
+                initLocationProcedure(pos);
+                console.log(pos);
+            }
+            else{
+                setMarkerPosition(currentPositionMarker,pos);
+            }
+        }
+    };
+    xhttp.open('GET', url, true);
+    xhttp.send();
+}
+setInterval(function (  ) {
+    getMapData(true);
+},2000)
 
 // initialize with a little help of jQuery
 $(document).ready(function() {
-    initLocationProcedure();
+    initializeMap();
+    getMapData(false);
     registerServiceWorker();
 });

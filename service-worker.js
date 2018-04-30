@@ -6,7 +6,7 @@
 
 //This is the service worker with the Cache-first network
 
-var CACHE = 'pwabuilder-precache';
+var CACHE = 'googleMap-precache';
 
 var precacheFiles = [
     '/',
@@ -14,6 +14,7 @@ var precacheFiles = [
     '/index.html',
     '/app.css',
     '/icons/manifest.json',
+    '/app.js',
     '/app2.js'
 ];
 
